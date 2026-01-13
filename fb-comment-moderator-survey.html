@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FB Comment Moderator - Khảo Sát Nhu Cầu</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a25;
+            --bg-card-hover: #222230;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-cyan: #06b6d4;
+            --accent-green: #10b981;
+            --accent-orange: #f59e0b;
+            --accent-pink: #ec4899;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            --border-color: rgba(255,255,255,0.08);
+            --glow-blue: 0 0 60px rgba(59, 130, 246, 0.3);
+            --glow-purple: 0 0 60px rgba(139, 92, 246, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 40% 60%, rgba(6, 182, 212, 0.1) 0%, transparent 40%);
+            animation: bgRotate 30s linear infinite;
+        }
+
+        @keyframes bgRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Grid pattern overlay */
+        .grid-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .logo-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: var(--glow-blue);
+        }
+
+        .logo-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(32px, 5vw, 48px);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #fff 0%, #a1a1aa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            margin-bottom: 40px;
+            animation: fadeIn 0.8s ease-out 0.2s both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--bg-card);
+            border-radius: 100px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 100px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+        }
+
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step-number {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .step-number.active {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-color: transparent;
+            box-shadow: var(--glow-blue);
+        }
+
+        .step-number.completed {
+            background: var(--accent-green);
+            border-color: transparent;
+        }
+
+        .step-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        /* Form Card */
+        .form-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .section-header {
+            margin-bottom: 32px;
+        }
+
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .section-desc {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 28px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .form-label .required {
+            color: var(--accent-pink);
+            margin-left: 4px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 16px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* Option Cards */
+        .options-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .options-grid.cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        @media (max-width: 600px) {
+            .options-grid.cols-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .option-card {
+            position: relative;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option-card:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+        }
+
+        .option-card.selected {
+            border-color: var(--accent-blue);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .option-card.selected::before {
+            content: '✓';
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 24px;
+            height: 24px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .option-card input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .option-icon {
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+
+        .option-title {
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .option-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Checkbox Cards */
+        .checkbox-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 18px 20px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-card:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(255,255,255,0.15);
+        }
+
+        .checkbox-card.selected {
+            border-color: var(--accent-purple);
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .checkbox-card input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .checkbox-custom {
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .checkbox-card.selected .checkbox-custom {
+            background: var(--accent-purple);
+            border-color: var(--accent-purple);
+        }
+
+        .checkbox-content {
+            flex: 1;
+        }
+
+        .checkbox-title {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .checkbox-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        /* Navigation Buttons */
+        .form-nav {
+            display: flex;
+            gap: 16px;
+            justify-content: space-between;
+            margin-top: 32px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border: none;
+            color: white;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(59, 130, 246, 0.5);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Success State */
+        .success-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--accent-green), #059669);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            margin: 0 auto 32px;
+            animation: successPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 0 60px rgba(16, 185, 129, 0.4);
+        }
+
+        @keyframes successPop {
+            0% { transform: scale(0); }
+            100% { transform: scale(1); }
+        }
+
+        .success-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .success-desc {
+            color: var(--text-secondary);
+            font-size: 16px;
+            line-height: 1.7;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        /* Loading State */
+        .loading {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 16px;
+            }
+            
+            .form-card {
+                padding: 24px;
+                border-radius: 20px;
+            }
+            
+            .progress-steps {
+                display: none;
+            }
+            
+            .btn {
+                padding: 14px 24px;
+                font-size: 14px;
+            }
+        }
+
+        /* Slider styles */
+        .slider-container {
+            padding: 20px 0;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .slider-input {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--bg-secondary);
+            border-radius: 100px;
+            outline: none;
+        }
+
+        .slider-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(59, 130, 246, 0.5);
+            transition: transform 0.2s ease;
+        }
+
+        .slider-input::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        .slider-value {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 24px;
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    <div class="grid-pattern"></div>
+    
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">🤖</div>
+                <span class="logo-text">FB Comment Moderator</span>
+            </div>
+            <h1>Khảo Sát Nhu Cầu<br>Hệ Thống AI Reply Comment</h1>
+            <p>Giúp chúng tôi hiểu rõ hơn về nhu cầu của bạn để tư vấn giải pháp phù hợp nhất. Chỉ mất khoảng 2-3 phút.</p>
+        </header>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 20%"></div>
+            </div>
+            <div class="progress-steps">
+                <div class="progress-step">
+                    <div class="step-number active" data-step="1">1</div>
+                    <span class="step-label">Thông tin</span>
+                </div>
+                <div class="progress-step">
+                    <div class="step-number" data-step="2">2</div>
+                    <span class="step-label">Trình độ</span>
+                </div>
+                <div class="progress-step">
+                    <div class="step-number" data-step="3">3</div>
+                    <span class="step-label">Nhu cầu</span>
+                </div>
+                <div class="progress-step">
+                    <div class="step-number" data-step="4">4</div>
+                    <span class="step-label">Tính năng</span>
+                </div>
+                <div class="progress-step">
+                    <div class="step-number" data-step="5">5</div>
+                    <span class="step-label">Hoàn tất</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form id="surveyForm" class="form-card">
+            
+            <!-- Section 1: Basic Info -->
+            <div class="form-section active" data-section="1">
+                <div class="section-header">
+                    <span class="section-badge">📋 Bước 1/5</span>
+                    <h2 class="section-title">Thông tin cơ bản</h2>
+                    <p class="section-desc">Giúp chúng tôi biết về bạn và doanh nghiệp của bạn</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Họ và tên<span class="required">*</span></label>
+                    <input type="text" class="form-input" name="fullName" placeholder="Nhập họ và tên của bạn" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email<span class="required">*</span></label>
+                    <input type="email" class="form-input" name="email" placeholder="email@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Số điện thoại</label>
+                    <input type="tel" class="form-input" name="phone" placeholder="0xxx xxx xxx">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Bạn đang hoạt động trong lĩnh vực nào?<span class="required">*</span></label>
+                    <div class="options-grid cols-2">
+                        <label class="option-card">
+                            <input type="radio" name="industry" value="ecommerce" required>
+                            <div class="option-icon">🛒</div>
+                            <div class="option-title">E-commerce / Bán hàng</div>
+                            <div class="option-desc">Shop online, dropship, TMĐT</div>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="industry" value="education">
+                            <div class="option-icon">📚</div>
+                            <div class="option-title">Giáo dục / Đào tạo</div>
+                            <div class="option-desc">Khóa học, coaching, mentor</div>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="industry" value="service">
+                            <div class="option-icon">💼</div>
+                            <div class="option-title">Dịch vụ / Tư vấn</div>
+                            <div class="option-desc">Agency, freelancer, consulting</div>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="industry" value="other">
+                            <div class="option-icon">🏢</div>
+                            <div class="option-title">Khác</div>
+                            <div class="option-desc">Lĩnh vực khác</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-nav">
+                    <div></div>
+                    <button type="button" class="btn btn-primary" onclick="nextSection()">
+                        Tiếp theo <span>→</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Section 2: Technical Level -->
+            <div class="form-section" data-section="2">
+                <div class="section-header">
+                    <span class="section-badge">🎯 Bước 2/5</span>
+                    <h2 class="section-title">Trình độ kỹ thuật</h2>
+                    <p class="section-desc">Đánh giá trình độ của bạn để chúng tôi tư vấn phù hợp</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Trình độ về automation / n8n của bạn?<span class="required">*</span></label>
+                    <div class="options-grid">
+                        <label class="option-card">
+                            <input type="radio" name="techLevel" value="beginner" required>
+                            <div class="option-icon">🌱</div>
+                            <div class="option-title">Mới bắt đầu</div>
+                            <div class="option-desc">Chưa biết gì về n8n hoặc automation, cần được hướng dẫn từ đầu</div>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="techLevel" value="intermediate">
+                            <div class="option-icon">🚀</div>
+                            <div class="option-title">Đã có kinh nghiệm</div>
+                            <div class="option-desc">Đã dùng qua n8n/Make/Zapier, biết cơ bản về workflow</div>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="techLevel" value="advanced">
+                            <div class="option-icon">⚡</div>
+                            <div class="option-title">Thành thạo</div>
+                            <div class="option-desc">Đã build nhiều workflow phức tạp, có thể tự setup</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Bạn đã từng sử dụng công cụ nào?</label>
+                    <div class="options-grid">
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="tools" value="n8n">
+                            <div class="checkbox-custom">✓</div>
+                            <div class="checkbox-content">
+                                <div class="checkbox-title">n8n</div>
+                                <div class="checkbox-desc">Workflow automation platform</div>
+                            </div>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="tools" value="make">
+                            <div class="checkbox-custom">✓</div>
+                            <div class="checkbox-content">
+                                <div class="checkbox-title">Make (Integromat)</div>
+                                <div class="checkbox-desc">Visual automation tool</div>
+                            </div>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="tools" value="zapier">
+                            <div class="checkbox-custom">✓</div>
+                            <div class="checkbox-content">
+                                <div class="checkbox-title">Zapier</div>
+                                <div class="checkbox-desc">Simple automation platform</div>
+                            </div>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="tools" value="chatgpt">
+                            <div class="checkbox-custom">✓</div>
+                            <div class="checkbox-content">
+                                <div class="checkbox-title">ChatGPT / AI</div>
+                                <div class="checkbox-desc">Đã sử dụng AI trong công việc</div>
+                            </div>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="tools" value="none">
+                            <div class="checkbox-custom">✓</div>
+                            <div class="checkbox-content">
+                                <div class="checkbox-title">Chưa dùng công cụ nào</div>
+                                <div class="checkbox-desc">Hoàn toàn mới</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-nav">
+                    <button type="button" class="btn btn-secondary" onclick="prevSection()">
+                        <span>←</span> Quay lại
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="nextSection()">
+                        Tiếp theo <span>→</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Section 3: Current Situation -->
+            <div class="form-section" data-section="3">
+                <div class="section-header">
+                    <span class="section-badge">📊 Bước 3/5</span>
+                    <h2 class="section-title">Tình hình hiện tại</h2>
+                    <p class="section-desc">Cho chúng tôi biết về fanpage và nhu cầu của bạn</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Số lượng fanpage bạn cần quản lý?<span class="required">*</span></label>
+                    <div class="options-grid cols-2">
+                        <label class="option-card">
+                            <input type="radio" name="pageCount" value="1" required>
+                            <div class="option-icon">1️⃣</div>
+                            <div class="option-title">1 Fanpage</div>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="pageCount" value="2-5">
+                            <div class="option-icon">🔢</div>
+                            <div class="option-title">2-5 Fanpage</div>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="pageCount" value="6-10">
+                            <div class="option-icon">📈</div>
+                            <div class="option-title">6-10 Fanpage</div>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="pageCount" value="10+">
+                            <div class="option-icon">🏆</div>
+                            <div class="option-title">Hơn 10 Fanpage</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Trung bình bạn nhận được bao nhiêu comment/ngày?<span class="required">*</span></label>
+                    <div class="slider-container">
+                        <div class="slider-labels">
+                            <span>Ít (&lt;10)</span>
+                            <span>Trung bình (50)</span>
+                            <span>Nhiều (100+)</span>
+                        </div>
+                        <input type="range" class="slider-input" name="commentVolume" min="0" max="200" value="50" oninput="updateSliderValue(this)">
+                        <div class="slider-value">~50 comment/ngày</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Vấn đề lớn nhất bạn đang gặp phải?<span class="required">*</span></label>
+                    <div class="options-grid">
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="problems" value="slow_response">
+                            <div class="checkbox-custom">✓</div>
+                            <div class="checkbox-content">
+                                <div class="checkbox-title">⏰ Reply chậm, mất khách</div>
+                                <div class="checkbox-desc">Không kịp trả lời comment kịp thời</div>
+                            </div>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="problems" value="inconsistent">
+                            <div class="checkbox-custom">✓</div>
+                            <div class="checkbox-content">
+                                <div class="checkbox-title">🔄 Câu trả lời không nhất quán</div>
+                                <div class="checkbox-desc">Mỗi người trả lời một kiểu</div>
+                            </div>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="problems" value="hiring">
+                            <div class="checkbox-custom">✓</div>
+                            <div class="checkbox-content">
+                                <div class="checkbox-title">👥 Tốn chi phí nhân sự</div>
+                                <div class="checkbox-desc">Thuê người trả lời comment tốn kém</div>
+                            </div>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="problems" value="missed">
+                            <div class="checkbox-custom">✓</div>
+                            <div class="checkbox-content">
+                                <div class="checkbox-title">📭 Bỏ sót comment</div>
+                                <div class="checkbox-desc">Quá nhiều comment, dễ bỏ sót</div>
+                            </div>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="problems" value="247">
+                            <div class="checkbox-custom">✓</div>
+                            <div class="checkbox-content">
+                                <div class="checkbox-title">🌙 Cần reply 24/7</div>
+                                <div class="checkbox-desc">Khách comment cả đêm, không ai trả lời</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-nav">
+                    <button type="button" class="btn btn-secondary" onclick="prevSection()">
+                        <span>←</span> Quay lại
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="nextSection()">
+                        Tiếp theo <span>→</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Section 4: Features -->
+            <div class="form-section" data-section="4">
+                <div class="section-header">
+                    <span class="section-badge">⚙️ Bước 4/5</span>
+                    <h2 class="section-title">Tính năng mong muốn</h2>
+                    <p class="section-desc">Chọn các tính năng bạn quan tâm</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Bạn muốn hệ thống có những tính năng gì?<span class="required">*</span></label>
+                    <div class="options-grid">
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="features" value="auto_reply">
+                            <div class="checkbox-custom">✓</div>
+                            <div class="checkbox-content">
+                                <div class="checkbox-title">🤖 Auto-reply thông minh</div>
+                                <div class="checkbox-desc">AI tự động reply dựa trên nội dung comment</div>
+                            </div>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="features" value="human_review">
+                            <div class="checkbox-custom">✓</div>
+                            <div class="checkbox-content">
+                                <div class="checkbox-title">👀 Human-in-the-loop</div>
+                                <div class="checkbox-desc">Duyệt qua Telegram trước khi reply</div>
+                            </div>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="features" value="inbox">
+                            <div class="checkbox-custom">✓</div>
+                            <div class="checkbox-content">
+                                <div class="checkbox-title">📩 Tự động inbox</div>
+                                <div class="checkbox-desc">Gửi tin nhắn inbox khi cần thiết</div>
+                            </div>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="features" value="categorize">
+                            <div class="checkbox-custom">✓</div>
+                            <div class="checkbox-content">
+                                <div class="checkbox-title">🏷️ Phân loại comment</div>
+                                <div class="checkbox-desc">Tự động phân loại: hỏi giá, khiếu nại, cảm ơn...</div>
+                            </div>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="features" value="analytics">
+                            <div class="checkbox-custom">✓</div>
+                            <div class="checkbox-content">
+                                <div class="checkbox-title">📊 Báo cáo & thống kê</div>
+                                <div class="checkbox-desc">Dashboard theo dõi hiệu quả</div>
+                            </div>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="features" value="training">
+                            <div class="checkbox-custom">✓</div>
+                            <div class="checkbox-content">
+                                <div class="checkbox-title">🎓 AI học từ feedback</div>
+                                <div class="checkbox-desc">Hệ thống tự cải thiện theo thời gian</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Mức độ tự động hóa bạn mong muốn?<span class="required">*</span></label>
+                    <div class="options-grid">
+                        <label class="option-card">
+                            <input type="radio" name="automationLevel" value="full_manual" required>
+                            <div class="option-icon">🙋</div>
+                            <div class="option-title">100% Duyệt tay</div>
+                            <div class="option-desc">Tất cả comment đều cần người duyệt trước</div>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="automationLevel" value="hybrid">
+                            <div class="option-icon">⚖️</div>
+                            <div class="option-title">Hybrid (Khuyến nghị)</div>
+                            <div class="option-desc">AI tự reply khi tự tin cao, còn lại đợi duyệt</div>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="automationLevel" value="full_auto">
+                            <div class="option-icon">🚀</div>
+                            <div class="option-title">100% Tự động</div>
+                            <div class="option-desc">AI tự reply tất cả, chỉ review sau</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-nav">
+                    <button type="button" class="btn btn-secondary" onclick="prevSection()">
+                        <span>←</span> Quay lại
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="nextSection()">
+                        Tiếp theo <span>→</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Section 5: Budget & Timeline -->
+            <div class="form-section" data-section="5">
+                <div class="section-header">
+                    <span class="section-badge">💰 Bước 5/5</span>
+                    <h2 class="section-title">Ngân sách & Timeline</h2>
+                    <p class="section-desc">Bước cuối cùng để hoàn tất khảo sát</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Ngân sách dự kiến cho hệ thống?<span class="required">*</span></label>
+                    <div class="options-grid cols-2">
+                        <label class="option-card">
+                            <input type="radio" name="budget" value="under_5m" required>
+                            <div class="option-icon">💵</div>
+                            <div class="option-title">Dưới 5 triệu</div>
+                            <div class="option-desc">Setup cơ bản</div>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="budget" value="5_10m">
+                            <div class="option-icon">💰</div>
+                            <div class="option-title">5-10 triệu</div>
+                            <div class="option-desc">Full features + training</div>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="budget" value="10_20m">
+                            <div class="option-icon">💎</div>
+                            <div class="option-title">10-20 triệu</div>
+                            <div class="option-desc">Enterprise + support</div>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="budget" value="discuss">
+                            <div class="option-icon">💬</div>
+                            <div class="option-title">Cần tư vấn</div>
+                            <div class="option-desc">Chưa xác định, muốn trao đổi thêm</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Bạn muốn triển khai khi nào?<span class="required">*</span></label>
+                    <div class="options-grid cols-2">
+                        <label class="option-card">
+                            <input type="radio" name="timeline" value="asap" required>
+                            <div class="option-icon">⚡</div>
+                            <div class="option-title">Càng sớm càng tốt</div>
+                            <div class="option-desc">Trong 1-2 tuần tới</div>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="timeline" value="1month">
+                            <div class="option-icon">📅</div>
+                            <div class="option-title">Trong 1 tháng</div>
+                            <div class="option-desc">Có thời gian chuẩn bị</div>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="timeline" value="exploring">
+                            <div class="option-icon">🔍</div>
+                            <div class="option-title">Đang tìm hiểu</div>
+                            <div class="option-desc">Chưa có kế hoạch cụ thể</div>
+                        </label>
+                        <label class="option-card">
+                            <input type="radio" name="timeline" value="planning">
+                            <div class="option-icon">📋</div>
+                            <div class="option-title">Lên kế hoạch cho Q2</div>
+                            <div class="option-desc">Triển khai trong vài tháng tới</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Ghi chú thêm (nếu có)</label>
+                    <textarea class="form-input" name="notes" rows="4" placeholder="Chia sẻ thêm về nhu cầu, câu hỏi, hoặc yêu cầu đặc biệt của bạn..."></textarea>
+                </div>
+
+                <div class="form-nav">
+                    <button type="button" class="btn btn-secondary" onclick="prevSection()">
+                        <span>←</span> Quay lại
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        Gửi khảo sát ✨
+                    </button>
+                </div>
+            </div>
+
+            <!-- Success State -->
+            <div class="form-section" data-section="success">
+                <div class="success-state">
+                    <div class="success-icon">✓</div>
+                    <h2 class="success-title">Cảm ơn bạn! 🎉</h2>
+                    <p class="success-desc">
+                        Chúng tôi đã nhận được thông tin của bạn và sẽ liên hệ trong vòng 24h để tư vấn giải pháp phù hợp nhất.
+                        <br><br>
+                        Trong thời gian chờ đợi, bạn có thể xem thêm về hệ thống tại kênh của chúng tôi.
+                    </p>
+                </div>
+            </div>
+        </form>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2025 FB Comment Moderator. Powered by n8n + AI</p>
+        </footer>
+    </div>
+
+    <script>
+        let currentSection = 1;
+        const totalSections = 5;
+
+        // Option card selection
+        document.querySelectorAll('.option-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const input = this.querySelector('input');
+                if (input.type === 'radio') {
+                    const name = input.name;
+                    document.querySelectorAll(`input[name="${name}"]`).forEach(radio => {
+                        radio.closest('.option-card').classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                    input.checked = true;
+                }
+            });
+        });
+
+        // Checkbox card selection
+        document.querySelectorAll('.checkbox-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const input = this.querySelector('input');
+                input.checked = !input.checked;
+                this.classList.toggle('selected', input.checked);
+            });
+        });
+
+        // Navigation functions
+        function nextSection() {
+            if (validateSection(currentSection)) {
+                if (currentSection < totalSections) {
+                    showSection(currentSection + 1);
+                }
+            }
+        }
+
+        function prevSection() {
+            if (currentSection > 1) {
+                showSection(currentSection - 1);
+            }
+        }
+
+        function showSection(section) {
+            // Hide current section
+            document.querySelector(`.form-section[data-section="${currentSection}"]`).classList.remove('active');
+            
+            // Show new section
+            currentSection = section;
+            document.querySelector(`.form-section[data-section="${section}"]`).classList.add('active');
+            
+            // Update progress
+            updateProgress();
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function updateProgress() {
+            const progress = (currentSection / totalSections) * 100;
+            document.querySelector('.progress-fill').style.width = `${progress}%`;
+            
+            document.querySelectorAll('.step-number').forEach((step, index) => {
+                const stepNum = index + 1;
+                step.classList.remove('active', 'completed');
+                if (stepNum === currentSection) {
+                    step.classList.add('active');
+                } else if (stepNum < currentSection) {
+                    step.classList.add('completed');
+                }
+            });
+        }
+
+        function validateSection(section) {
+            const currentSectionEl = document.querySelector(`.form-section[data-section="${section}"]`);
+            const requiredInputs = currentSectionEl.querySelectorAll('[required]');
+            
+            for (let input of requiredInputs) {
+                if (input.type === 'radio') {
+                    const name = input.name;
+                    const checked = currentSectionEl.querySelector(`input[name="${name}"]:checked`);
+                    if (!checked) {
+                        alert('Vui lòng chọn một lựa chọn');
+                        return false;
+                    }
+                } else if (!input.value.trim()) {
+                    input.focus();
+                    alert('Vui lòng điền đầy đủ thông tin bắt buộc');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function updateSliderValue(slider) {
+            const value = slider.value;
+            let text = '';
+            if (value < 20) text = `~${value} comment/ngày (Ít)`;
+            else if (value < 80) text = `~${value} comment/ngày (Trung bình)`;
+            else text = `~${value}+ comment/ngày (Nhiều)`;
+            
+            slider.closest('.slider-container').querySelector('.slider-value').textContent = text;
+        }
+
+        // Form submission
+        document.getElementById('surveyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!validateSection(currentSection)) return;
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.innerHTML = '<span class="loading"><span class="spinner"></span> Đang gửi...</span>';
+            submitBtn.disabled = true;
+            
+            // Collect form data
+            const formData = new FormData(this);
+            const data = {
+                timestamp: new Date().toISOString(),
+                fullName: formData.get('fullName'),
+                email: formData.get('email'),
+                phone: formData.get('phone') || '',
+                industry: formData.get('industry'),
+                techLevel: formData.get('techLevel'),
+                tools: formData.getAll('tools').join(', '),
+                pageCount: formData.get('pageCount'),
+                commentVolume: formData.get('commentVolume'),
+                problems: formData.getAll('problems').join(', '),
+                features: formData.getAll('features').join(', '),
+                automationLevel: formData.get('automationLevel'),
+                budget: formData.get('budget'),
+                timeline: formData.get('timeline'),
+                notes: formData.get('notes') || ''
+            };
+
+            // ============================================
+            // 🔧 HƯỚNG DẪN KẾT NỐI GOOGLE SHEET
+            // ============================================
+            // 
+            // BƯỚC 1: Tạo Google Sheet mới
+            // 
+            // BƯỚC 2: Vào Extensions > Apps Script
+            // 
+            // BƯỚC 3: Paste code sau vào Apps Script:
+            //
+            // function doPost(e) {
+            //   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+            //   var data = JSON.parse(e.postData.contents);
+            //   
+            //   sheet.appendRow([
+            //     data.timestamp,
+            //     data.fullName,
+            //     data.email,
+            //     data.phone,
+            //     data.industry,
+            //     data.techLevel,
+            //     data.tools,
+            //     data.pageCount,
+            //     data.commentVolume,
+            //     data.problems,
+            //     data.features,
+            //     data.automationLevel,
+            //     data.budget,
+            //     data.timeline,
+            //     data.notes
+            //   ]);
+            //   
+            //   return ContentService
+            //     .createTextOutput(JSON.stringify({status: 'success'}))
+            //     .setMimeType(ContentService.MimeType.JSON);
+            // }
+            //
+            // BƯỚC 4: Deploy > New deployment > Web app
+            //         Execute as: Me
+            //         Who has access: Anyone
+            //
+            // BƯỚC 5: Copy URL và paste vào GOOGLE_SCRIPT_URL bên dưới
+            // ============================================
+
+            const GOOGLE_SCRIPT_URL = 'YOUR_GOOGLE_SCRIPT_URL_HERE';
+            
+            try {
+                if (GOOGLE_SCRIPT_URL !== 'YOUR_GOOGLE_SCRIPT_URL_HERE') {
+                    await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+                }
+                
+                // Show success
+                document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+                document.querySelector('.form-section[data-section="success"]').classList.add('active');
+                document.querySelector('.progress-fill').style.width = '100%';
+                document.querySelectorAll('.step-number').forEach(s => s.classList.add('completed'));
+                
+                // Log data for testing
+                console.log('Survey Data:', data);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra. Vui lòng thử lại!');
+                submitBtn.innerHTML = 'Gửi khảo sát ✨';
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>
