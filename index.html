@@ -1313,65 +1313,20 @@
                 timeline: formData.get('timeline'),
                 notes: formData.get('notes') || ''
             };
-
-            // ============================================
-            // 🔧 HƯỚNG DẪN KẾT NỐI GOOGLE SHEET
-            // ============================================
-            // 
-            // BƯỚC 1: Tạo Google Sheet mới
-            // 
-            // BƯỚC 2: Vào Extensions > Apps Script
-            // 
-            // BƯỚC 3: Paste code sau vào Apps Script:
-            //
-            // function doPost(e) {
-            //   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-            //   var data = JSON.parse(e.postData.contents);
-            //   
-            //   sheet.appendRow([
-            //     data.timestamp,
-            //     data.fullName,
-            //     data.email,
-            //     data.phone,
-            //     data.industry,
-            //     data.techLevel,
-            //     data.tools,
-            //     data.pageCount,
-            //     data.commentVolume,
-            //     data.problems,
-            //     data.features,
-            //     data.automationLevel,
-            //     data.budget,
-            //     data.timeline,
-            //     data.notes
-            //   ]);
-            //   
-            //   return ContentService
-            //     .createTextOutput(JSON.stringify({status: 'success'}))
-            //     .setMimeType(ContentService.MimeType.JSON);
-            // }
-            //
-            // BƯỚC 4: Deploy > New deployment > Web app
-            //         Execute as: Me
-            //         Who has access: Anyone
-            //
-            // BƯỚC 5: Copy URL và paste vào GOOGLE_SCRIPT_URL bên dưới
-            // ============================================
-
-            const GOOGLE_SCRIPT_URL = 'YOUR_GOOGLE_SCRIPT_URL_HERE';
-            
+            // n8n Webhook URL                                                                                                                                                              
+            const WEBHOOK_URL = 'https://n8n.trananhminh.com/webhook/49090a34-ea85-4e07-aad6-ad6d6fa96971';
             try {
-                if (GOOGLE_SCRIPT_URL !== 'YOUR_GOOGLE_SCRIPT_URL_HERE') {
-                    await fetch(GOOGLE_SCRIPT_URL, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(data)
-                    });
-                }
-                
+            const response = await fetch(WEBHOOK_URL, {                                                                                                                                 
+                 method: 'POST',                                                                                                                                                         
+                 headers: {                                                                                                                                                              
+                    'Content-Type': 'application/json',                                                                                                                                 
+                    },                                                                                                                                                                      
+                    body: JSON.stringify(data)                                                                                                                                              
+                });                                                                                                                                                                         
+                                                                                                                                                                                                   
+                if (!response.ok) {                                                                                                                                                         
+                    throw new Error('Network response was not ok');                                                                                                                         
+                }    
                 // Show success
                 document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
                 document.querySelector('.form-section[data-section="success"]').classList.add('active');
